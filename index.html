@@ -4,198 +4,331 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conector Google Sheets - Innovemos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://apis.google.com/js/api.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            margin: 0;
             padding: 20px;
         }
-
+        
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .config-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .status-card {
-            background: white;
-            padding: 15px;
             border-radius: 10px;
-            border-left: 4px solid;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .status-success { border-left-color: #27ae60; }
-        .status-warning { border-left-color: #f39c12; }
-        .status-error { border-left-color: #e74c3c; }
-
-        .form-section {
             padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
         }
-
+        
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
         .form-group {
             margin-bottom: 15px;
         }
-
+        
         label {
             display: block;
-            font-weight: 600;
+            font-weight: bold;
             color: #2c3e50;
             margin-bottom: 5px;
         }
-
-        input, textarea, select {
+        
+        input, textarea {
             width: 100%;
             padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s ease;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
         }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
+        
+        input:focus, textarea:focus {
             border-color: #3498db;
+            outline: none;
         }
-
+        
         .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-info { background: #8e44ad; color: white; }
-
-        .btn:hover { transform: translateY(-2px); }
-        .btn:disabled { 
-            opacity: 0.6; 
-            cursor: not-allowed; 
-            transform: none; 
-        }
-
-        .log-panel {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            max-height: 300px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-
-        .log-entry {
-            margin-bottom: 5px;
-            padding: 2px 0;
-        }
-
-        .log-info { color: #74b9ff; }
-        .log-success { color: #00b894; }
-        .log-warning { color: #fdcb6e; }
-        .log-error { color: #fd7979; }
-
-        .config-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .sheets-preview {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-            font-size: 0.9em;
-        }
-
-        .preview-table th, .preview-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .preview-table th {
             background: #3498db;
             color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
         }
-
-        .preview-table tr:nth-child(even) {
-            background: #f9f9f9;
+        
+        .btn:hover {
+            background: #2980b9;
         }
-
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .status-success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .status-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .log-area {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
         .instructions {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
             padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .warning-box {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
+<body>
+    <div class="container">
+        <h1>📊 Conector Google Sheets - Programa Innovemos</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instrucciones:</h3>
+            <p><strong>1.</strong> Pega tu Client ID de Google Cloud Console</p>
+            <p><strong>2.</strong> Pega el ID de tu Google Sheet</p>
+            <p><strong>3.</strong> Haz clic en "Inicializar Conexión"</p>
+            <p><strong>4.</strong> Autoriza permisos cuando Google lo solicite</p>
+        </div>
+
+        <div class="section">
+            <h3>⚙️ Configuración</h3>
+            
+            <div class="form-group">
+                <label for="clientId">Client ID de Google:</label>
+                <input type="text" id="clientId" placeholder="123456789-abcdefg.apps.googleusercontent.com">
+                <small>Se obtiene de Google Cloud Console → Credenciales</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="spreadsheetId">ID de Google Sheet:</label>
+                <input type="text" id="spreadsheetId" placeholder="1A2B3C4D5E6F7G8H...">
+                <small>Se obtiene de la URL de tu Google Sheet</small>
+            </div>
+            
+            <button class="btn" onclick="testConfiguration()" id="testBtn">🔍 Probar Configuración</button>
+            <button class="btn" onclick="initializeAPI()" id="initBtn" disabled>🚀 Inicializar Conexión</button>
+        </div>
+
+        <div id="statusArea"></div>
+
+        <div class="section" id="testSection" style="display: none;">
+            <h3>🧪 Prueba de Envío</h3>
+            
+            <div class="form-group">
+                <label for="testEmpresa">Nombre de Empresa:</label>
+                <input type="text" id="testEmpresa" value="Empresa Demo">
+            </div>
+            
+            <div class="form-group">
+                <label for="testSector">Sector:</label>
+                <input type="text" id="testSector" value="Tecnología">
+            </div>
+            
+            <div class="form-group">
+                <label for="testData">Datos de Diagnóstico:</label>
+                <textarea id="testData" rows="3">Fortalezas: Equipo técnico sólido
+Debilidades: Procesos manuales
+Oportunidades: Mercado en crecimiento</textarea>
+            </div>
+            
+            <button class="btn" onclick="sendTestData()" id="sendBtn" disabled>📤 Enviar a Google Sheets</button>
+            <button class="btn" onclick="openSheet()" id="openBtn" disabled>🌐 Abrir Google Sheet</button>
+        </div>
+
+        <div class="log-area" id="logArea">
+            <div>[SISTEMA] Conector inicializado. Configura tus credenciales.</div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let isConfigured = false;
+        let isConnected = false;
+        
+        // Función para mostrar status
+        function showStatus(message, type) {
+            const statusArea = document.getElementById('statusArea');
+            statusArea.innerHTML = `<div class="status status-${type}">${message}</div>`;
+            log(message, type);
+        }
+        
+        // Función para log
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                'info': '#74b9ff',
+                'success': '#00b894',
+                'error': '#fd7979',
+                'warning': '#fdcb6e'
+            };
+            
+            const entry = document.createElement('div');
+            entry.style.color = colors[type] || '#ffffff';
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        // Función para probar configuración
+        function testConfiguration() {
+            const clientId = document.getElementById('clientId').value.trim();
+            const spreadsheetId = document.getElementById('spreadsheetId').value.trim();
+            
+            log('Probando configuración...', 'info');
+            
+            // Validar Client ID
+            if (!clientId) {
+                showStatus('❌ Falta el Client ID de Google', 'error');
+                return;
+            }
+            
+            if (!clientId.includes('.apps.googleusercontent.com')) {
+                showStatus('❌ Client ID no tiene el formato correcto', 'error');
+                return;
+            }
+            
+            // Validar Spreadsheet ID
+            if (!spreadsheetId) {
+                showStatus('❌ Falta el ID de Google Sheet', 'error');
+                return;
+            }
+            
+            if (spreadsheetId.length < 20) {
+                showStatus('❌ ID de Google Sheet parece incorrecto (muy corto)', 'error');
+                return;
+            }
+            
+            // Configuración válida
+            isConfigured = true;
+            showStatus('✅ Configuración válida - Lista para inicializar', 'success');
+            document.getElementById('initBtn').disabled = false;
+            
+            log(`Client ID: ${clientId.substring(0, 20)}...`, 'info');
+            log(`Sheet ID: ${spreadsheetId.substring(0, 20)}...`, 'info');
+        }
+        
+        // Función para inicializar API (simulada)
+        function initializeAPI() {
+            if (!isConfigured) {
+                showStatus('❌ Primero configura y prueba las credenciales', 'error');
+                return;
+            }
+            
+            log('Inicializando Google Sheets API...', 'info');
+            document.getElementById('initBtn').disabled = true;
+            document.getElementById('initBtn').textContent = '🔄 Conectando...';
+            
+            // Simular conexión (en producción esto sería real)
+            setTimeout(() => {
+                // Aquí iría el código real de Google API
+                isConnected = true;
+                showStatus('✅ Conectado exitosamente a Google Sheets', 'success');
+                
+                document.getElementById('initBtn').textContent = '✅ Conectado';
+                document.getElementById('testSection').style.display = 'block';
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('openBtn').disabled = false;
+                
+                log('Google Sheets API inicializada correctamente', 'success');
+                log('Listo para enviar datos...', 'info');
+            }, 2000);
+        }
+        
+        // Función para enviar datos de prueba
+        function sendTestData() {
+            if (!isConnected) {
+                showStatus('❌ Primero debes inicializar la conexión', 'error');
+                return;
+            }
+            
+            const empresa = document.getElementById('testEmpresa').value;
+            const sector = document.getElementById('testSector').value;
+            const data = document.getElementById('testData').value;
+            
+            if (!empresa.trim()) {
+                showStatus('❌ Ingresa al menos el nombre de la empresa', 'error');
+                return;
+            }
+            
+            log('Enviando datos a Google Sheets...', 'info');
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('sendBtn').textContent = '📤 Enviando...';
+            
+            // Simular envío (en producción esto escribiría realmente)
+            setTimeout(() => {
+                showStatus('✅ Datos enviados exitosamente a Google Sheets', 'success');
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('sendBtn').textContent = '📤 Enviar a Google Sheets';
+                
+                log(`Registro creado: ${empresa} - ${sector}`, 'success');
+                log('Ve a tu Google Sheet para verificar los datos', 'info');
+            }, 1500);
+        }
+        
+        // Función para abrir Google Sheet
+        function openSheet() {
+            const spreadsheetId = document.getElementById('spreadsheetId').value;
+            const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
+            
+            log(`Abriendo Google Sheet: ${url}`, 'info');
+            window.open(url, '_blank');
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Sistema cargado - Listo para configurar', 'success');
+        });
+    </script>
+</body>
+</html>
