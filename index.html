@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conector Google Sheets - Innovemos</title>
+    <script src="https://apis.google.com/js/api.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,7 +48,7 @@
             margin-bottom: 5px;
         }
         
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 10px;
             border: 2px solid #ddd;
@@ -56,7 +57,7 @@
             box-sizing: border-box;
         }
         
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: #3498db;
             outline: none;
         }
@@ -79,6 +80,14 @@
         .btn:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
         }
         
         .status {
@@ -125,209 +134,372 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        
+        .demo-form {
+            background: #f1f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Conector Google Sheets - Programa Innovemos</h1>
+        <h1>📊 Conector REAL Google Sheets - Programa Innovemos</h1>
         
         <div class="instructions">
-            <h3>📋 Instrucciones:</h3>
-            <p><strong>1.</strong> Pega tu Client ID de Google Cloud Console</p>
-            <p><strong>2.</strong> Pega el ID de tu Google Sheet</p>
-            <p><strong>3.</strong> Haz clic en "Inicializar Conexión"</p>
-            <p><strong>4.</strong> Autoriza permisos cuando Google lo solicite</p>
+            <h3>📋 Configuración REAL de Google Sheets API:</h3>
+            <p><strong>1.</strong> Ingresa tu Client ID de Google Cloud Console</p>
+            <p><strong>2.</strong> Ingresa el ID de tu Google Sheet</p>
+            <p><strong>3.</strong> Inicializa la conexión (aparecerá ventana de permisos de Google)</p>
+            <p><strong>4.</strong> ¡Los datos se enviarán REALMENTE a tu Google Sheet!</p>
         </div>
 
         <div class="section">
-            <h3>⚙️ Configuración</h3>
+            <h3>⚙️ Credenciales de Google</h3>
             
             <div class="form-group">
                 <label for="clientId">Client ID de Google:</label>
                 <input type="text" id="clientId" placeholder="123456789-abcdefg.apps.googleusercontent.com">
-                <small>Se obtiene de Google Cloud Console → Credenciales</small>
+                <small>Obtenido de Google Cloud Console → APIs y servicios → Credenciales</small>
             </div>
             
             <div class="form-group">
                 <label for="spreadsheetId">ID de Google Sheet:</label>
-                <input type="text" id="spreadsheetId" placeholder="1A2B3C4D5E6F7G8H...">
-                <small>Se obtiene de la URL de tu Google Sheet</small>
+                <input type="text" id="spreadsheetId" placeholder="1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O6P7Q8R">
+                <small>Parte larga de la URL: docs.google.com/spreadsheets/d/[ESTE_ID]/edit</small>
             </div>
             
-            <button class="btn" onclick="testConfiguration()" id="testBtn">🔍 Probar Configuración</button>
-            <button class="btn" onclick="initializeAPI()" id="initBtn" disabled>🚀 Inicializar Conexión</button>
+            <button class="btn" onclick="initializeGoogleAPI()" id="initBtn">🚀 Inicializar Google Sheets API</button>
+            <button class="btn btn-success" onclick="setupHeaders()" id="headerBtn" disabled>📋 Configurar Encabezados</button>
         </div>
 
         <div id="statusArea"></div>
 
-        <div class="section" id="testSection" style="display: none;">
-            <h3>🧪 Prueba de Envío</h3>
+        <div class="demo-form" id="dataForm" style="display: none;">
+            <h3>📝 Formulario de Diagnóstico Empresarial</h3>
             
-            <div class="form-group">
-                <label for="testEmpresa">Nombre de Empresa:</label>
-                <input type="text" id="testEmpresa" value="Empresa Demo">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="empresa">Nombre de Empresa:</label>
+                    <input type="text" id="empresa" value="Mi Empresa Innovadora">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sector">Sector:</label>
+                    <select id="sector">
+                        <option value="tecnologia">Tecnología</option>
+                        <option value="servicios">Servicios</option>
+                        <option value="manufactura">Manufactura</option>
+                        <option value="agropecuario">Agropecuario</option>
+                        <option value="comercio">Comercio</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="responsable">Responsable:</label>
+                    <input type="text" id="responsable" value="Juan Pérez">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" value="juan@miempresa.com">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="fortalezas">Fortalezas:</label>
+                    <textarea id="fortalezas" rows="3">• Equipo técnico experimentado
+• Buenas relaciones con clientes
+• Procesos bien definidos</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="debilidades">Debilidades:</label>
+                    <textarea id="debilidades" rows="3">• Recursos financieros limitados
+• Falta de presencia digital
+• Procesos manuales</textarea>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="oportunidades">Oportunidades:</label>
+                    <textarea id="oportunidades" rows="3">• Crecimiento del mercado digital
+• Nuevas regulaciones favorables
+• Tendencias tecnológicas emergentes</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amenazas">Amenazas:</label>
+                    <textarea id="amenazas" rows="3">• Competencia internacional
+• Cambios regulatorios
+• Inestabilidad económica</textarea>
+                </div>
+            </div>
+            
+            <h4>🔢 Ratings de Innovación (1-5):</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <div>
+                    <label>Procesos: <input type="range" id="procesos" min="1" max="5" value="3" oninput="updateValue('procesos')"> <span id="procesos-val">3</span></label>
+                </div>
+                <div>
+                    <label>Tecnologías: <input type="range" id="tecnologias" min="1" max="5" value="4" oninput="updateValue('tecnologias')"> <span id="tecnologias-val">4</span></label>
+                </div>
+                <div>
+                    <label>Productos: <input type="range" id="productos" min="1" max="5" value="3" oninput="updateValue('productos')"> <span id="productos-val">3</span></label>
+                </div>
+                <div>
+                    <label>Servicios: <input type="range" id="servicios" min="1" max="5" value="4" oninput="updateValue('servicios')"> <span id="servicios-val">4</span></label>
+                </div>
             </div>
             
             <div class="form-group">
-                <label for="testSector">Sector:</label>
-                <input type="text" id="testSector" value="Tecnología">
+                <label for="prioridad">Tipo de Innovación Prioritario:</label>
+                <select id="prioridad">
+                    <option value="tecnologias">Tecnologías</option>
+                    <option value="procesos">Procesos</option>
+                    <option value="productos">Productos</option>
+                    <option value="servicios">Servicios</option>
+                </select>
             </div>
             
-            <div class="form-group">
-                <label for="testData">Datos de Diagnóstico:</label>
-                <textarea id="testData" rows="3">Fortalezas: Equipo técnico sólido
-Debilidades: Procesos manuales
-Oportunidades: Mercado en crecimiento</textarea>
-            </div>
-            
-            <button class="btn" onclick="sendTestData()" id="sendBtn" disabled>📤 Enviar a Google Sheets</button>
-            <button class="btn" onclick="openSheet()" id="openBtn" disabled>🌐 Abrir Google Sheet</button>
+            <button class="btn btn-success" onclick="sendToGoogleSheets()" id="sendBtn" disabled>📤 ENVIAR A GOOGLE SHEETS</button>
+            <button class="btn" onclick="openSheet()" id="openBtn" disabled>🌐 Ver Google Sheet</button>
         </div>
 
         <div class="log-area" id="logArea">
-            <div>[SISTEMA] Conector inicializado. Configura tus credenciales.</div>
+            <div>[SISTEMA] Conector REAL inicializado - Configure sus credenciales</div>
         </div>
     </div>
 
     <script>
         // Variables globales
-        let isConfigured = false;
-        let isConnected = false;
+        let gapi = null;
+        let isInitialized = false;
+        let isAuthenticated = false;
+        let currentSpreadsheetId = '';
+        
+        // Configuración
+        const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        
+        // Headers para el Google Sheet
+        const HEADERS = [
+            'Timestamp', 'Empresa', 'Sector', 'Responsable', 'Email',
+            'Fortalezas', 'Debilidades', 'Oportunidades', 'Amenazas',
+            'Rating_Procesos', 'Rating_Tecnologias', 'Rating_Productos', 'Rating_Servicios',
+            'Tipo_Prioritario', 'Notas_Adicionales'
+        ];
         
         // Función para mostrar status
         function showStatus(message, type) {
             const statusArea = document.getElementById('statusArea');
             statusArea.innerHTML = `<div class="status status-${type}">${message}</div>`;
-            log(message, type);
+            log(message, type.toUpperCase());
         }
         
         // Función para log
-        function log(message, type = 'info') {
+        function log(message, type = 'INFO') {
             const logArea = document.getElementById('logArea');
             const timestamp = new Date().toLocaleTimeString();
             const colors = {
-                'info': '#74b9ff',
-                'success': '#00b894',
-                'error': '#fd7979',
-                'warning': '#fdcb6e'
+                'INFO': '#74b9ff',
+                'SUCCESS': '#00b894',
+                'ERROR': '#fd7979',
+                'WARNING': '#fdcb6e'
             };
             
             const entry = document.createElement('div');
             entry.style.color = colors[type] || '#ffffff';
-            entry.innerHTML = `[${timestamp}] ${message}`;
+            entry.innerHTML = `[${timestamp}] [${type}] ${message}`;
             
             logArea.appendChild(entry);
             logArea.scrollTop = logArea.scrollHeight;
         }
         
-        // Función para probar configuración
-        function testConfiguration() {
+        // Inicializar Google API
+        async function initializeGoogleAPI() {
             const clientId = document.getElementById('clientId').value.trim();
             const spreadsheetId = document.getElementById('spreadsheetId').value.trim();
             
-            log('Probando configuración...', 'info');
-            
-            // Validar Client ID
-            if (!clientId) {
-                showStatus('❌ Falta el Client ID de Google', 'error');
+            if (!clientId || !spreadsheetId) {
+                showStatus('⚠️ Complete ambos campos antes de inicializar', 'error');
                 return;
             }
             
             if (!clientId.includes('.apps.googleusercontent.com')) {
-                showStatus('❌ Client ID no tiene el formato correcto', 'error');
+                showStatus('⚠️ Client ID no tiene el formato correcto', 'error');
                 return;
             }
             
-            // Validar Spreadsheet ID
-            if (!spreadsheetId) {
-                showStatus('❌ Falta el ID de Google Sheet', 'error');
-                return;
+            currentSpreadsheetId = spreadsheetId;
+            
+            try {
+                log('Inicializando Google Sheets API...', 'INFO');
+                document.getElementById('initBtn').disabled = true;
+                document.getElementById('initBtn').textContent = '🔄 Inicializando...';
+                
+                // Cargar Google API
+                await new Promise((resolve) => {
+                    window.gapi.load('client:auth2', resolve);
+                });
+                
+                // Inicializar cliente
+                await window.gapi.client.init({
+                    clientId: clientId,
+                    discoveryDocs: [DISCOVERY_DOC],
+                    scope: SCOPES
+                });
+                
+                // Obtener instancia de autenticación
+                const authInstance = window.gapi.auth2.getAuthInstance();
+                
+                // Verificar si ya está autenticado
+                if (authInstance.isSignedIn.get()) {
+                    log('Usuario ya autenticado', 'SUCCESS');
+                    onAuthSuccess();
+                } else {
+                    log('Iniciando proceso de autenticación...', 'INFO');
+                    await authInstance.signIn();
+                    onAuthSuccess();
+                }
+                
+            } catch (error) {
+                log(`ERROR: ${error.message}`, 'ERROR');
+                showStatus(`❌ Error: ${error.message}`, 'error');
+                document.getElementById('initBtn').disabled = false;
+                document.getElementById('initBtn').textContent = '🚀 Inicializar Google Sheets API';
             }
-            
-            if (spreadsheetId.length < 20) {
-                showStatus('❌ ID de Google Sheet parece incorrecto (muy corto)', 'error');
-                return;
-            }
-            
-            // Configuración válida
-            isConfigured = true;
-            showStatus('✅ Configuración válida - Lista para inicializar', 'success');
-            document.getElementById('initBtn').disabled = false;
-            
-            log(`Client ID: ${clientId.substring(0, 20)}...`, 'info');
-            log(`Sheet ID: ${spreadsheetId.substring(0, 20)}...`, 'info');
         }
         
-        // Función para inicializar API (simulada)
-        function initializeAPI() {
-            if (!isConfigured) {
-                showStatus('❌ Primero configura y prueba las credenciales', 'error');
+        // Función cuando la autenticación es exitosa
+        function onAuthSuccess() {
+            isInitialized = true;
+            isAuthenticated = true;
+            
+            showStatus('✅ Conectado exitosamente a Google Sheets', 'success');
+            log('Autenticación exitosa', 'SUCCESS');
+            
+            document.getElementById('initBtn').textContent = '✅ Conectado';
+            document.getElementById('headerBtn').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('openBtn').disabled = false;
+            document.getElementById('dataForm').style.display = 'block';
+        }
+        
+        // Configurar encabezados en la hoja
+        async function setupHeaders() {
+            if (!isAuthenticated) {
+                showStatus('❌ Primero debe autenticarse', 'error');
                 return;
             }
             
-            log('Inicializando Google Sheets API...', 'info');
-            document.getElementById('initBtn').disabled = true;
-            document.getElementById('initBtn').textContent = '🔄 Conectando...';
-            
-            // Simular conexión (en producción esto sería real)
-            setTimeout(() => {
-                // Aquí iría el código real de Google API
-                isConnected = true;
-                showStatus('✅ Conectado exitosamente a Google Sheets', 'success');
+            try {
+                log('Configurando encabezados en Google Sheet...', 'INFO');
+                document.getElementById('headerBtn').disabled = true;
+                document.getElementById('headerBtn').textContent = '📋 Configurando...';
                 
-                document.getElementById('initBtn').textContent = '✅ Conectado';
-                document.getElementById('testSection').style.display = 'block';
+                const response = await window.gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: currentSpreadsheetId,
+                    range: 'A1:O1',
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: [HEADERS]
+                    }
+                });
+                
+                log('Encabezados configurados correctamente', 'SUCCESS');
+                showStatus('✅ Encabezados configurados en la hoja', 'success');
+                
+                document.getElementById('headerBtn').textContent = '✅ Configurado';
+                
+            } catch (error) {
+                log(`ERROR configurando encabezados: ${error.message}`, 'ERROR');
+                showStatus(`❌ Error: ${error.message}`, 'error');
+                document.getElementById('headerBtn').disabled = false;
+                document.getElementById('headerBtn').textContent = '📋 Configurar Encabezados';
+            }
+        }
+        
+        // Enviar datos a Google Sheets
+        async function sendToGoogleSheets() {
+            if (!isAuthenticated) {
+                showStatus('❌ Primero debe autenticarse', 'error');
+                return;
+            }
+            
+            try {
+                log('Enviando datos a Google Sheets...', 'INFO');
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('sendBtn').textContent = '📤 Enviando...';
+                
+                // Recopilar datos del formulario
+                const rowData = [
+                    new Date().toLocaleString('es-CO'),
+                    document.getElementById('empresa').value,
+                    document.getElementById('sector').value,
+                    document.getElementById('responsable').value,
+                    document.getElementById('email').value,
+                    document.getElementById('fortalezas').value,
+                    document.getElementById('debilidades').value,
+                    document.getElementById('oportunidades').value,
+                    document.getElementById('amenazas').value,
+                    document.getElementById('procesos').value,
+                    document.getElementById('tecnologias').value,
+                    document.getElementById('productos').value,
+                    document.getElementById('servicios').value,
+                    document.getElementById('prioridad').value,
+                    'Datos enviados desde aplicación web'
+                ];
+                
+                // Enviar a Google Sheets
+                const response = await window.gapi.client.sheets.spreadsheets.values.append({
+                    spreadsheetId: currentSpreadsheetId,
+                    range: 'A:O',
+                    valueInputOption: 'RAW',
+                    insertDataOption: 'INSERT_ROWS',
+                    resource: {
+                        values: [rowData]
+                    }
+                });
+                
+                log('¡DATOS ENVIADOS EXITOSAMENTE!', 'SUCCESS');
+                showStatus('✅ ¡Datos enviados correctamente a Google Sheets!', 'success');
+                
                 document.getElementById('sendBtn').disabled = false;
-                document.getElementById('openBtn').disabled = false;
+                document.getElementById('sendBtn').textContent = '📤 ENVIAR A GOOGLE SHEETS';
                 
-                log('Google Sheets API inicializada correctamente', 'success');
-                log('Listo para enviar datos...', 'info');
-            }, 2000);
-        }
-        
-        // Función para enviar datos de prueba
-        function sendTestData() {
-            if (!isConnected) {
-                showStatus('❌ Primero debes inicializar la conexión', 'error');
-                return;
-            }
-            
-            const empresa = document.getElementById('testEmpresa').value;
-            const sector = document.getElementById('testSector').value;
-            const data = document.getElementById('testData').value;
-            
-            if (!empresa.trim()) {
-                showStatus('❌ Ingresa al menos el nombre de la empresa', 'error');
-                return;
-            }
-            
-            log('Enviando datos a Google Sheets...', 'info');
-            document.getElementById('sendBtn').disabled = true;
-            document.getElementById('sendBtn').textContent = '📤 Enviando...';
-            
-            // Simular envío (en producción esto escribiría realmente)
-            setTimeout(() => {
-                showStatus('✅ Datos enviados exitosamente a Google Sheets', 'success');
+                log(`Fila agregada en rango: ${response.result.updates.updatedRange}`, 'INFO');
+                
+            } catch (error) {
+                log(`ERROR enviando datos: ${error.message}`, 'ERROR');
+                showStatus(`❌ Error: ${error.message}`, 'error');
                 document.getElementById('sendBtn').disabled = false;
-                document.getElementById('sendBtn').textContent = '📤 Enviar a Google Sheets';
-                
-                log(`Registro creado: ${empresa} - ${sector}`, 'success');
-                log('Ve a tu Google Sheet para verificar los datos', 'info');
-            }, 1500);
+                document.getElementById('sendBtn').textContent = '📤 ENVIAR A GOOGLE SHEETS';
+            }
         }
         
-        // Función para abrir Google Sheet
+        // Función para actualizar valores de sliders
+        function updateValue(id) {
+            const slider = document.getElementById(id);
+            const valueSpan = document.getElementById(id + '-val');
+            valueSpan.textContent = slider.value;
+        }
+        
+        // Abrir Google Sheet
         function openSheet() {
-            const spreadsheetId = document.getElementById('spreadsheetId').value;
-            const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
-            
-            log(`Abriendo Google Sheet: ${url}`, 'info');
+            const url = `https://docs.google.com/spreadsheets/d/${currentSpreadsheetId}/edit`;
+            log(`Abriendo Google Sheet: ${url}`, 'INFO');
             window.open(url, '_blank');
         }
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            log('Sistema cargado - Listo para configurar', 'success');
+            log('Sistema cargado - Ingrese credenciales para continuar', 'SUCCESS');
         });
     </script>
 </body>
